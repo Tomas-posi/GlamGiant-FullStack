@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { ProductTest } from '../ProductTests/product-test.entity';
 
 @Entity()
 export class User {
@@ -22,4 +23,7 @@ export class User {
 
   @Column({ nullable: true })
   allergicReactions: string;
+
+  @OneToMany(() => ProductTest, (productTest) => productTest.tester)
+  tests: ProductTest[];
 }

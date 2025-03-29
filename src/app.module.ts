@@ -4,6 +4,10 @@ import { UsersModule } from './users/users.module';
 import { ServicesModule } from './services/services.module';
 import { RegistersModule } from './registers/registers.module';
 import { ConfigModule } from '@nestjs/config';
+import { ProductsModule } from './products/products.module';
+import { OrdersModule } from './orders/orders.module';
+import { ProductTest } from './ProductTests/product-test.entity';
+import { ProductTestsModule } from './ProductTests/product-tests.module';
 
 @Module({
   imports: [ //Cambie esta parte para proteger las claves de la base de datos y eso
@@ -36,6 +40,9 @@ import { ConfigModule } from '@nestjs/config';
     UsersModule,
     ServicesModule,
     RegistersModule,
+    ProductsModule,
+    OrdersModule,
+    ProductTestsModule,
   ],
 })
 export class AppModule {}
