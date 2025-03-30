@@ -1,49 +1,41 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Register } from './register.entity';
-import { User } from '../users/user.entity';
-import { Service } from '../services/service.entity';
 
 @Injectable()
 export class RegistersService {
   constructor(
     @InjectRepository(Register)
-    private registerRepo: Repository<Register>,
-
-    @InjectRepository(User)
-    private userRepo: Repository<User>,
-
-    @InjectRepository(Service)
-    private serviceRepo: Repository<Service>,
+    private readonly registerRepository: Repository<Register>,
   ) {}
 
-  async create(data: { userId: number; serviceId: number; date: Date; status?: string }) {
-    const user = await this.userRepo.findOne({ where: { id: data.userId } });
-    const service = await this.serviceRepo.findOne({ where: { id: data.serviceId } });
-
-    if (!user) {
-        throw new Error(`Usuario con ID ${data.userId} no encontrado`);
-      }
-      
-      if (!service) {
-        throw new Error(`Servicio con ID ${data.serviceId} no encontrado`);
-      }
-      
-
-    const register = this.registerRepo.create({
-      user,
-      service,
-      date: data.date,
-      status: data.status || 'pendiente',
-    });
-
-    return this.registerRepo.save(register);
+  async create(registerData: Partial<Register>): Promise<Register> {
+    const register = this.registerRepository.create(registerData);
+    return this.registerRepository.save(register);
   }
 
-  findAll() {
-    return this.registerRepo.find({
-      relations: ['user', 'service'],
-    });
+  async findAll(): Promise<Register[]> {
+    return this.registerRepository.find({ relations: ['user', 'service'] });
+  }
+
+  async update(id: number, updateData: Partial<Register>): Promise<Register> {
+    const register = await this.registerRepository.findOne({ where: { id } });
+    if (!register) {
+      throw new NotFoundException(`Registro con ID ${id} no encontrado`);
+    }
+
+    Object.assign(register, updateData);
+    return this.registerRepository.save(register);
+  }
+
+  async delete(id: number): Promise<void> {
+    const result = await this.registerRepository.delete(id);
+    if (result.affected === 0) {
+      throw new NotFoundException(
+        'No se pudo eliminar el registro. Verifique si existe o si tiene relaciones con otros datos.',
+      );
+    }
   }
 }
+

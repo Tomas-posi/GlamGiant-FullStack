@@ -1,4 +1,12 @@
-import { Controller, Post, Get, Body } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Body,
+  Put,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from './user.entity';
 
@@ -13,7 +21,21 @@ export class UsersController {
 
   @Get()
   async findAll(): Promise<User[]> {
-    return this.usersService.findAll();  // Necesitamos este método en UsersService
+    return this.usersService.findAll();
+  }
+
+  @Put(':id')
+  async update(
+    @Param('id') id: number,
+    @Body() updateUserDto: Partial<User>,
+  ): Promise<User> {
+    return this.usersService.update(id, updateUserDto);
+  }
+
+  @Delete(':id')
+  async delete(@Param('id') id: number): Promise<{ message: string }> {
+    await this.usersService.delete(id);
+    return { message: `Usuario con ID ${id} eliminado correctamente.` };
   }
 }
 
