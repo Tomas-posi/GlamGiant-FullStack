@@ -1,4 +1,6 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException } from '@nestjs/common';
+import { 
+  Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException, BadRequestException 
+} from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateMakeupProductDto } from './create-makeUp-product.dto';
 import { UpdateMakeupProductDto } from './update-makeUp-product.dto';
@@ -19,7 +21,8 @@ export class ProductsController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: number): Promise<MakeupProduct> {
+  async findOne(@Param('id') id: string): Promise<MakeupProduct> {
+    this.validateUUID(id);
     const product = await this.productsService.findOne(id);
     if (!product) {
       throw new NotFoundException(`Product with ID ${id} not found`);
@@ -29,9 +32,10 @@ export class ProductsController {
 
   @Patch(':id')
   async update(
-    @Param('id') id: number,
+    @Param('id') id: string, 
     @Body() updateProductDto: UpdateMakeupProductDto,
   ): Promise<MakeupProduct> {
+    this.validateUUID(id);
     const updatedProduct = await this.productsService.update(id, updateProductDto);
     if (!updatedProduct) {
       throw new NotFoundException(`Product with ID ${id} not found`);
@@ -40,11 +44,18 @@ export class ProductsController {
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: number): Promise<{ message: string }> {
+  async remove(@Param('id') id: string): Promise<{ message: string }> {
+    this.validateUUID(id);
     await this.productsService.remove(id);
     return { message: `Product with ID ${id} successfully deleted` };
   }
+
+  // ✅ Helper function to validate UUID format
+  private validateUUID(id: string) {
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(id)) {
+      throw new BadRequestException(`Invalid UUID format: ${id}`);
+    }
+  }
 }
-
-
 

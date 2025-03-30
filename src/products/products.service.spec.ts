@@ -24,24 +24,22 @@ export class ProductsService {
   }
 
   // Get a product by ID
-  async findOne(id: number): Promise<MakeupProduct> {
+  async findOne(id: string): Promise<MakeupProduct> {
     const product = await this.productRepository.findOne({ where: { id } });
     if (!product) throw new NotFoundException(`Product with ID ${id} not found`);
     return product;
   }
 
   // Update a product
-  async update(id: number, updateProductDto: UpdateMakeupProductDto): Promise<MakeupProduct> {
-    await this.findOne(id); // Check if product exists
-    await this.productRepository.update(id, updateProductDto);
-    return this.findOne(id);
+  async update(id: string, updateProductDto: UpdateMakeupProductDto): Promise<MakeupProduct> {
+    const product = await this.productRepository.preload({ id, ...updateProductDto });
+    if (!product) throw new NotFoundException(`Product with ID ${id} not found`);
+    return await this.productRepository.save(product);
   }
 
   // Delete a product
-  async remove(id: number): Promise<void> {
-    await this.findOne(id); // Check if product exists
-    await this.productRepository.delete(id);
+  async remove(id: string): Promise<void> {
+    const result = await this.productRepository.delete(id);
+    if (result.affected === 0) throw new NotFoundException(`Product with ID ${id} not found`);
   }
 }
-
-

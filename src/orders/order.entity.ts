@@ -1,17 +1,26 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
-import { OrderItem } from './order-item.entity';
+import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+
+export enum PaymentStatus {
+  PAID = 'Paid',
+  REFUNDED = 'Refunded',
+  FAILED = 'Failed',
+}
 
 @Entity()
 export class Order {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  createdAt: Date;
+  @Column('uuid')
+  client_id: string;
 
-  @Column({ type: 'varchar', length: 255 })
-  status: string;
+  @Column('simple-array') // Stores product IDs as a comma-separated string
+  products: string[];
 
-  @OneToMany(() => OrderItem, (orderItem) => orderItem.order, { cascade: true })
-  orderItems: OrderItem[];
+  @Column({ type: 'decimal', precision: 10, scale: 2 })
+  total_amount: number;
+
+  @Column({ type: 'enum', enum: PaymentStatus })
+  payment_status: PaymentStatus;
 }
+

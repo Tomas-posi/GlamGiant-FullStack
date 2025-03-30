@@ -1,22 +1,15 @@
-import { IsInt, IsPositive, IsArray, ValidateNested } from 'class-validator';
-import { Type } from 'class-transformer';
-
-class OrderItemDto {
-  @IsInt()
-  @IsPositive()
-  serviceId: number;
-
-  @IsInt()
-  @IsPositive()
-  quantity: number;
-
-  @IsPositive()
-  price: number;
-}
+import { IsUUID, IsArray, ArrayNotEmpty, IsEnum } from 'class-validator';
+import { PaymentStatus } from './order.entity';
 
 export class CreateOrderDto {
+  @IsUUID()
+  client_id: string;
+
   @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => OrderItemDto)
-  items: OrderItemDto[];
+  @ArrayNotEmpty()
+  @IsUUID("all", { each: true })
+  products: string[];
+
+  @IsEnum(PaymentStatus)
+  payment_status: PaymentStatus;
 }

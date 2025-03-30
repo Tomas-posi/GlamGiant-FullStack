@@ -1,19 +1,21 @@
-import { IsOptional, IsString, IsNumber, IsDate } from 'class-validator';
+import { IsUUID, IsOptional, IsEnum, IsArray, IsNumber } from 'class-validator';
+import { PaymentStatus } from './order.entity';
 
 export class UpdateOrderDto {
   @IsOptional()
+  @IsUUID()
+  client_id?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsUUID('all', { each: true })
+  products?: string[];
+
+  @IsOptional()
   @IsNumber()
-  customerId?: number;
+  total_amount?: number;
 
   @IsOptional()
-  @IsString()
-  status?: string;
-
-  @IsOptional()
-  @IsDate()
-  orderDate?: Date;
-
-  @IsOptional()
-  @IsNumber({}, { each: true })
-  productIds?: number[];
+  @IsEnum(PaymentStatus)
+  payment_status?: PaymentStatus;
 }

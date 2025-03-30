@@ -1,7 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { MakeupProduct } from './makeUp-product.entity';
+import { CreateMakeupProductDto } from './create-makeUp-product.dto';
+import { UpdateMakeupProductDto } from './update-makeUp-product.dto';
 
 @Injectable()
 export class ProductsService {
@@ -11,7 +13,7 @@ export class ProductsService {
   ) {}
 
   // Create a new product
-  async create(productData: Partial<MakeupProduct>): Promise<MakeupProduct> {
+  async create(productData: CreateMakeupProductDto): Promise<MakeupProduct> {
     const product = this.productRepository.create(productData);
     return this.productRepository.save(product);
   }
@@ -22,18 +24,29 @@ export class ProductsService {
   }
 
   // Get a product by ID
-  async findOne(id: number): Promise<MakeupProduct | null> {
-    return this.productRepository.findOne({ where: { id } });
+  async findOne(id: string): Promise<MakeupProduct> {
+    const product = await this.productRepository.findOne({ where: { id } });
+    if (!product) {
+      throw new NotFoundException(`Product with ID ${id} not found`);
+    }
+    return product;
   }
 
   // Update a product
-  async update(id: number, productData: Partial<MakeupProduct>): Promise<MakeupProduct | null> {
-    await this.productRepository.update(id, productData);
-    return this.findOne(id);
+  async update(id: string, productData: UpdateMakeupProductDto): Promise<MakeupProduct> {
+    const product = await this.productRepository.preload({ id, ...productData });
+    if (!product) {
+      throw new NotFoundException(`Product with ID ${id} not found`);
+    }
+    return this.productRepository.save(product);
   }
 
   // Delete a product
-  async remove(id: number): Promise<void> {
-    await this.productRepository.delete(id);
+  async remove(id: string): Promise<void> {
+    const result = await this.productRepository.delete(id);
+    if (result.affected === 0) {
+      throw new NotFoundException(`Product with ID ${id} not found`);
+    }
   }
 }
+

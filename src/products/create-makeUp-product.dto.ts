@@ -1,4 +1,5 @@
-import { IsString, IsNumber, Min, IsNotEmpty, IsDateString } from 'class-validator';
+import { IsString, IsNumber, Min, Max, IsNotEmpty, IsEnum } from 'class-validator';
+import { ProductCategory } from './makeUp-product.entity';
 
 export class CreateMakeupProductDto {
   @IsNotEmpty()
@@ -6,8 +7,8 @@ export class CreateMakeupProductDto {
   name: string;
 
   @IsNotEmpty()
-  @IsString()
-  category: string;
+  @IsEnum(ProductCategory, { message: 'Category must be a valid product category' })
+  category: ProductCategory;
 
   @IsNotEmpty()
   @IsNumber()
@@ -19,6 +20,14 @@ export class CreateMakeupProductDto {
   location: string;
 
   @IsNotEmpty()
-  @IsDateString() 
-  durability: string;
+  @IsNumber()
+  @Min(1, { message: 'Durability score must be at least 1' })
+  @Max(10, { message: 'Durability score cannot be greater than 10' })
+  durability_score: number;
+
+  @IsNotEmpty()
+  @IsNumber({ maxDecimalPlaces: 2 }) // ✅ Ensures max two decimal places
+  @Min(0, { message: 'Price cannot be negative' }) // ✅ Ensures price is non-negative
+  price: number;
 }
+

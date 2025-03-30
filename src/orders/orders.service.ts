@@ -1,78 +1,53 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Order } from './order.entity';
-import { OrderItem } from './order-item.entity';
+import { Repository, In } from 'typeorm';
+import { Order, PaymentStatus } from './order.entity';
 import { CreateOrderDto } from './create-order.dto';
 import { UpdateOrderDto } from './update-order.dto';
+import { MakeupProduct } from '../products/makeUp-product.entity';
 
 @Injectable()
 export class OrdersService {
   constructor(
     @InjectRepository(Order)
     private ordersRepository: Repository<Order>,
-
-    @InjectRepository(OrderItem)
-    private orderItemsRepository: Repository<OrderItem>,
+    @InjectRepository(MakeupProduct)
+    private productRepository: Repository<MakeupProduct>,
   ) {}
 
-  async createOrder(createOrderDto: CreateOrderDto): Promise<Order> {
-    const { items } = createOrderDto;
+  async create(createOrderDto: CreateOrderDto): Promise<Order> {
+    const { client_id, products, payment_status } = createOrderDto;
 
-    const order = this.ordersRepository.create();
-    await this.ordersRepository.save(order);
-
-    const orderItems = items.map(item =>
-      this.orderItemsRepository.create({
-        order,
-        service: { id: item.serviceId },
-        quantity: item.quantity,
-        price: item.price,
-      }),
-    );
-
-    await this.orderItemsRepository.save(orderItems);
-
-    return this.getOrderById(order.id);
-  }
-
-  async getOrderById(id: number): Promise<Order> {
-    const order = await this.ordersRepository.findOne({
-      where: { id },
-      relations: ['items', 'items.service'],
-    });
-
-    if (!order) {
-      throw new NotFoundException(`Order with ID ${id} not found`);
+    const foundProducts = await this.productRepository.findBy({ id: In(products) });
+    if (foundProducts.length !== products.length) {
+      throw new BadRequestException('Some products were not found');
     }
 
-    return order;
-  }
+    const totalAmount = foundProducts.reduce((sum, product) => sum + product.price, 0);
 
-  async getAllOrders(): Promise<Order[]> {
-    return this.ordersRepository.find({ relations: ['items', 'items.service'] });
-  }
-
-  async updateOrder(id: number, updateOrderDto: UpdateOrderDto): Promise<Order> {
-    const order = await this.ordersRepository.preload({
-      id,
-      ...updateOrderDto,
-    });
-
-    if (!order) {
-      throw new NotFoundException(`Order with ID ${id} not found`);
-    }
-
+    const order = this.ordersRepository.create({ client_id, products, total_amount: totalAmount, payment_status });
     return this.ordersRepository.save(order);
   }
 
-  async deleteOrder(id: number): Promise<{ message: string }> {
+  async findAll(): Promise<Order[]> {
+    return this.ordersRepository.find();
+  }
+
+  async findOne(id: string): Promise<Order> {
+    const order = await this.ordersRepository.findOne({ where: { id } });
+    if (!order) throw new NotFoundException('Order not found');
+    return order;
+  }
+
+  async update(id: string, updateOrderDto: UpdateOrderDto): Promise<Order> {
+    const order = await this.ordersRepository.preload({ id, ...updateOrderDto });
+    if (!order) throw new NotFoundException('Order not found');
+    return this.ordersRepository.save(order);
+  }
+
+  async remove(id: string): Promise<{ message: string }> {
     const result = await this.ordersRepository.delete(id);
-
-    if (result.affected === 0) {
-      throw new NotFoundException(`Order with ID ${id} not found`);
-    }
-
-    return { message: `Order with ID ${id} successfully deleted` };
+    if (!result.affected) throw new NotFoundException('Order not found');
+    return { message: 'Order deleted successfully' };
   }
 }

@@ -1,44 +1,34 @@
-import { Controller, Get, Post, Patch, Delete, Param, Body, NotFoundException } from '@nestjs/common';
+import { Controller, Post, Get, Patch, Delete, Body, Param } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './create-order.dto';
 import { UpdateOrderDto } from './update-order.dto';
-import { Order } from './order.entity';
 
 @Controller('orders')
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
   @Post()
-  async createOrder(@Body() createOrderDto: CreateOrderDto): Promise<Order> {
-    return this.ordersService.createOrder(createOrderDto);
+  create(@Body() createOrderDto: CreateOrderDto) {
+    return this.ordersService.create(createOrderDto);
   }
 
   @Get()
-  async getAllOrders(): Promise<Order[]> {
-    return this.ordersService.getAllOrders();
+  findAll() {
+    return this.ordersService.findAll();
   }
 
   @Get(':id')
-  async getOrderById(@Param('id') id: number): Promise<Order> {
-    const order = await this.ordersService.getOrderById(id);
-    if (!order) {
-      throw new NotFoundException(`Order with ID ${id} not found`);
-    }
-    return order;
+  findOne(@Param('id') id: string) {
+    return this.ordersService.findOne(id);
   }
 
   @Patch(':id')
-  async updateOrder(@Param('id') id: number, @Body() updateOrderDto: UpdateOrderDto): Promise<Order> {
-    const updatedOrder = await this.ordersService.updateOrder(id, updateOrderDto);
-    if (!updatedOrder) {
-      throw new NotFoundException(`Order with ID ${id} not found`);
-    }
-    return updatedOrder;
+  update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
+    return this.ordersService.update(id, updateOrderDto);
   }
 
   @Delete(':id')
-  async deleteOrder(@Param('id') id: number): Promise<{ message: string }> {
-    await this.ordersService.deleteOrder(id);
-    return { message: `Order with ID ${id} successfully deleted` };
+  remove(@Param('id') id: string) {
+    return this.ordersService.remove(id);
   }
 }
