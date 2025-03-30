@@ -32,7 +32,7 @@ import { ProductTestsModule } from './ProductTests/product-tests.module';
       host: 'localhost',
       port: 5432,
       username: 'postgres',
-      password: 'r15*',
+      password: 'Byd2024*',
       database: 'glamgiant_db',
       autoLoadEntities: true,
       synchronize: true,
