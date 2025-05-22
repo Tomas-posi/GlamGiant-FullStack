@@ -20,7 +20,10 @@
     "noFallthroughCasesInSwitch": false,
     "resolveJsonModule": true,  // Ensure JSON config files can be imported
     "esModuleInterop": true,     //  Prevent import issues with TypeORM
-    "strictPropertyInitialization": false  //  Avoid issues with decorators in entities
+    "strictPropertyInitialization": false,  //  Avoid issues with decorators in entities
+    "types": ["jest"]
+
+    
   }
 }
 
