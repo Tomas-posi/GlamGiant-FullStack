@@ -23,9 +23,14 @@ export class OrdersService {
       throw new BadRequestException('Some products were not found');
     }
 
-    const totalAmount = foundProducts.reduce((sum, product) => sum + product.price, 0);
+    const totalAmount = foundProducts.reduce((sum, product) => sum + Number(product.price), 0);
 
-    const order = this.ordersRepository.create({ client_id, products, total_amount: totalAmount, payment_status });
+    const order = this.ordersRepository.create({
+      client_id,
+      products,
+      total_amount: totalAmount,
+      payment_status,
+    });
     return this.ordersRepository.save(order);
   }
 
@@ -33,19 +38,19 @@ export class OrdersService {
     return this.ordersRepository.find();
   }
 
-  async findOne(id: string): Promise<Order> {
+  async findOne(id: number): Promise<Order> {
     const order = await this.ordersRepository.findOne({ where: { id } });
     if (!order) throw new NotFoundException('Order not found');
     return order;
   }
 
-  async update(id: string, updateOrderDto: UpdateOrderDto): Promise<Order> {
+  async update(id: number, updateOrderDto: UpdateOrderDto): Promise<Order> {
     const order = await this.ordersRepository.preload({ id, ...updateOrderDto });
     if (!order) throw new NotFoundException('Order not found');
     return this.ordersRepository.save(order);
   }
 
-  async remove(id: string): Promise<{ message: string }> {
+  async remove(id: number): Promise<{ message: string }> {
     const result = await this.ordersRepository.delete(id);
     if (!result.affected) throw new NotFoundException('Order not found');
     return { message: 'Order deleted successfully' };

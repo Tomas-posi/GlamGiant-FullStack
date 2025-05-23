@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
-const Login: React.FC = () => {
+
+interface Props {
+  onLoginSuccess: () => void;
+}
+
+const Login: React.FC<Props> = ({ onLoginSuccess }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -27,7 +32,7 @@ const Login: React.FC = () => {
         setSuccess('Inicio de sesión exitoso.');
         setEmail('');
         setPassword('');
-
+        onLoginSuccess(); // ✅ Notifica a App que el login fue exitoso
       } else {
         setError('Credenciales inválidas. Verifica tu correo y contraseña.');
       }
@@ -72,9 +77,7 @@ const Login: React.FC = () => {
         style={{ display: 'block', marginBottom: 20, width: '100%' }}
       />
 
-      <button
-        onClick={handleLogin}
-        className="modern-button">
+      <button onClick={handleLogin} className="modern-button">
         Iniciar sesión
       </button>
     </div>
@@ -82,3 +85,4 @@ const Login: React.FC = () => {
 };
 
 export default Login;
+

@@ -8,14 +8,14 @@ export enum PaymentStatus {
 
 @Entity()
 export class Order {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn()
+  id: number;  // antes era UUID
 
-  @Column('uuid')
-  client_id: string;
+  @Column()
+  client_id: number; // antes era UUID
 
-  @Column('simple-array') // Stores product IDs as a comma-separated string
-  products: string[];
+  @Column('simple-array') // almacena IDs de productos como coma-separados
+  products: number[];  // antes string[]
 
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   total_amount: number;
@@ -23,4 +23,5 @@ export class Order {
   @Column({ type: 'enum', enum: PaymentStatus })
   payment_status: PaymentStatus;
 }
+
 
