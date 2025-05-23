@@ -40,6 +40,10 @@ const Dashboard: React.FC = () => {
           🛒 Comprar
         </button>
 
+        <button className="modern-button" onClick={() => setSelectedSection('servicios')}>
+          💅 Servicios
+        </button>
+
         {canSeeTestCalendar && (
           <button className="modern-button" onClick={() => setSelectedSection('calendario')}>
             📆 Ver calendario de pruebas
@@ -47,11 +51,8 @@ const Dashboard: React.FC = () => {
         )}
 
         {isEmployeeOrAdmin && (
-          <button 
-            className="modern-button"
-            onClick={() => (window.location.href = '/create')}
-  >
-    🧪 Crear pruebas, productos servicios
+          <button className="modern-button" onClick={() => (window.location.href = '/create')}>
+            🧪 Crear pruebas, productos servicios
           </button>
         )}
 
@@ -79,6 +80,9 @@ const Dashboard: React.FC = () => {
             <p>Aquí se podrá agregar nuevos productos y servicios a la base de datos.</p>
           </div>
         )}
+        {selectedSection === 'servicios' && (
+          <p>💅 Aquí se mostrarán los servicios disponibles.</p>
+        )}
         {selectedSection === 'calendario' && (
           <p>📅 Aquí se mostrará el calendario de pruebas.</p>
         )}
@@ -94,3 +98,4 @@ const Dashboard: React.FC = () => {
 };
 
 export default Dashboard;
+
