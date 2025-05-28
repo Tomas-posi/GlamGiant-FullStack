@@ -1,4 +1,8 @@
 import React, { useState } from 'react';
+import OrdersList from '../Pages/OrdersList';
+import CreateProductTest from '../Pages/CreateProductTest';
+import ProductTestsList from '../Pages/ProductTestsList';
+
 
 const Dashboard: React.FC = () => {
   const user = JSON.parse(localStorage.getItem('loggedUser') || '{}');
@@ -75,20 +79,21 @@ const Dashboard: React.FC = () => {
 
       <div style={{ marginTop: 40, width: '90%', maxWidth: 800 }}>
         {selectedSection === 'crear' && (
-          <div>
-            <h2>🆕 Crear productos y servicios</h2>
-            <p>Aquí se podrá agregar nuevos productos y servicios a la base de datos.</p>
-          </div>
-        )}
+          <CreateProductTest />
+          )}
+
         {selectedSection === 'servicios' && (
           <p>💅 Aquí se mostrarán los servicios disponibles.</p>
         )}
         {selectedSection === 'calendario' && (
-          <p>📅 Aquí se mostrará el calendario de pruebas.</p>
-        )}
+          <ProductTestsList />
+          )}
+
         {selectedSection === 'ordenes' && (
-          <p>📦 Aquí se verán las órdenes realizadas.</p>
-        )}
+          <div>
+            <OrdersList />
+            </div>
+          )}
         {selectedSection === 'modificaciones' && (
           <p>⚙️ Opciones de modificación avanzadas.</p>
         )}
